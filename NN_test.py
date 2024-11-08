@@ -11,6 +11,8 @@ import LSTM
 from collections import Counter
 from torch.utils.data.sampler import WeightedRandomSampler
 from imblearn.over_sampling import SMOTE
+import numpy as np
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,6 +49,13 @@ MyDataset = Datasets.MyDataset(x_mass, y_mass)
 # MyDatasetBin = Datasets.MyDataset(x_mass, y_mass_bin)
 # MyDatasetsmote = Datasets.MyDataset(X_smote, y_smote)
 
+# Calculate weights for each class
+class_sample_count = np.array([len(np.where(y_mass.numpy() == t)[0]) for t in np.unique(y_mass.numpy())])
+weight = 1. / class_sample_count
+samples_weight = np.array([weight[int(t)] for t in y_mass.numpy()])
+samples_weight = torch.from_numpy(samples_weight)
+sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
+
 # weights1 = [1/counter.get(torch.argmax(y, dim=0).item()) for x, y in MyDataset]
 # weights = [1/counter.get(y.item()) for x, y in MyDatasetBin]
 # sampler1 = WeightedRandomSampler(weights1, num_samples=len(weights1))
@@ -57,8 +66,8 @@ MyDataset = Datasets.MyDataset(x_mass, y_mass)
 # print(sum(sumlen))
 
 # for ordinary
-train_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False)
-val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False)
+train_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False, sampler=sampler)
+val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False, sampler=sampler)
 
 # for binary
 # train_loader_bin = data.DataLoader(MyDatasetBin, batch_size=NN_init.batch_size, pin_memory=False, sampler=sampler)
