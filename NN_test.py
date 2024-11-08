@@ -18,9 +18,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ee = pd.read_csv(filepath_or_buffer=NN_init.finename,
                          names=['title', 'class'], encoding='Windows-1251', delimiter=';', header=0)
 
+
 x_mass = ee['title']
 y_mass = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
-y_mass_bin = ee['class'] # dlya binarnoy
+# y_mass_bin = ee['class'] # dlya binarnoy
+
 # counter for weights
 counter = Counter(y_mass_bin)
 

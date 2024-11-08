@@ -3,7 +3,9 @@ import NN_training
 import Datasets
 import NN_init
 from keras._tf_keras.keras.preprocessing.sequence import pad_sequences
+import torch_geometric
 
+torch_geometric.nn.LightGCN
 
 def model_predict(word, name_model, RM=False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
