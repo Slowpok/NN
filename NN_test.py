@@ -83,7 +83,7 @@ val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=T
 
 # сначала - реснет 34 с одним выходом, тут используется рандомная выборка из классов
 # resnet34 = Resnet.ClassicResnet("resnet34_bin", "resnet34", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0], num_classes=1)
-# resnet34.to(device)
+# resnet34.to(NN_init.device)
 # loss_fn = torch.nn.BCELoss()
 # optimizer = torch.optim.Adam(resnet34.parameters(), lr=NN_init.learning_rate)
 # conv_net_res = NN_training.training(resnet34, loss_fn, optimizer, train_loader_bin, val_loader_bin, n_epoch=70)
@@ -91,7 +91,7 @@ val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=T
 # теперь обычный вариант 34-й со взвешенными классами
 resnet34_weight = Resnet.Resnet(name="resnet34_weight", nettype="resnet34", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0])
 resnet34_weight.to(NN_init.device)
-# class_weights = torch.tensor([0.1, 0.9]).to(device)
+# class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnet34_weight.parameters(), lr=NN_init.learning_rate)
@@ -107,14 +107,14 @@ conv_net_res5 = NN_training.training(resnet50_weight, loss_fn, optimizer, train_
 
 # # теперь вариант 34-й c сгенерированными липовыми данными
 # resnet34_smote = Resnet.ResnetTest(name="resnet34_smote", nettype="resnet34", size_token=NN_init.size_of_array, unique_words=X_smote.shape[0], num_classes=1)
-# resnet34_smote.to(device)
+# resnet34_smote.to(NN_init.device)
 # loss_fn = torch.nn.BCELoss()
 # optimizer = torch.optim.Adam(resnet34_smote.parameters(), lr=NN_init.learning_rate)
 # conv_net_res3 = NN_training.training(resnet34_smote, loss_fn, optimizer, train_loader_bin_smote, val_loader_bin_smote, n_epoch=70)
 
 # LSTM
 # model_LSTM = LSTM.LSTM_Model(name="LSTM", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0],num_classes=1)
-# model_LSTM.to(device)
+# model_LSTM.to(NN_init.device)
 #
 # loss_fn = torch.nn.BCELoss()
 # optimizer = torch.optim.Adam(model_LSTM.parameters(), lr=1e-2, amsgrad=True)
