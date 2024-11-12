@@ -14,7 +14,7 @@ from imblearn.over_sampling import SMOTE
 import numpy as np
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # dannye
 ee = pd.read_csv(filepath_or_buffer=NN_init.finename,
@@ -37,12 +37,12 @@ x_mass = pad_sequences(Datasets.string_list_to_sequence(x_mass), NN_init.size_of
 # X_smote = torch.tensor(X_smote)
 # y_smote = torch.tensor(y_smote)
 
-x_mass = torch.Tensor(x_mass).to(device)
-# X_smote = torch.Tensor(X_smote).to(device)
-# y_mass = torch.Tensor(y_mass).to(device)
-y_mass = torch.as_tensor(y_mass).to(device)
-# y_mass_bin = torch.as_tensor(y_mass_bin).to(device)
-# y_smote = torch.as_tensor(y_smote).to(device)
+x_mass = torch.Tensor(x_mass).to(NN_init.device)
+# X_smote = torch.Tensor(X_smote).to(NN_init.device)
+# y_mass = torch.Tensor(y_mass).to(NN_init.device)
+y_mass = torch.as_tensor(y_mass).to(NN_init.device)
+# y_mass_bin = torch.as_tensor(y_mass_bin).to(NN_init.device)
+# y_smote = torch.as_tensor(y_smote).to(NN_init.device)
 
 
 MyDataset = Datasets.MyDataset(x_mass, y_mass)
@@ -90,7 +90,7 @@ val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=T
 
 # теперь обычный вариант 34-й со взвешенными классами
 resnet34_weight = Resnet.Resnet(name="resnet34_weight", nettype="resnet34", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0])
-resnet34_weight.to(device)
+resnet34_weight.to(NN_init.device)
 # class_weights = torch.tensor([0.1, 0.9]).to(device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
 loss_fn = torch.nn.CrossEntropyLoss()
@@ -98,8 +98,8 @@ optimizer = torch.optim.Adam(resnet34_weight.parameters(), lr=NN_init.learning_r
 conv_net_res2 = NN_training.training(resnet34_weight, loss_fn, optimizer, train_loader, val_loader, n_epoch=70)
 
 resnet50_weight = Resnet.Resnet(name="resnet50_weight", nettype="resnet50", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0])
-resnet50_weight.to(device)
-# class_weights = torch.tensor([0.1, 0.9]).to(device)
+resnet50_weight.to(NN_init.device)
+# class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnet50_weight.parameters(), lr=NN_init.learning_rate)
