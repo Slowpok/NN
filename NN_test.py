@@ -22,8 +22,10 @@ ee = pd.read_csv(filepath_or_buffer=NN_init.finename,
 
 
 x_mass = ee['title']
-y_mass = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
+# y_mass = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
 # y_mass_bin = ee['class'] # dlya binarnoy
+y_mass = ee['class']
+y_mass_one_hot = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
 
 # counter for weights
 # counter = Counter(y_mass_bin)
@@ -45,7 +47,7 @@ y_mass = torch.as_tensor(y_mass).to(NN_init.device)
 # y_smote = torch.as_tensor(y_smote).to(NN_init.device)
 
 
-MyDataset = Datasets.MyDataset(x_mass, y_mass)
+MyDataset = Datasets.MyDataset(x_mass, y_mass_one_hot)
 # MyDatasetBin = Datasets.MyDataset(x_mass, y_mass_bin)
 # MyDatasetsmote = Datasets.MyDataset(X_smote, y_smote)
 
