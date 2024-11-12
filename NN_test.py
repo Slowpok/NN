@@ -43,6 +43,7 @@ x_mass = torch.Tensor(x_mass).to(NN_init.device)
 # X_smote = torch.Tensor(X_smote).to(NN_init.device)
 # y_mass = torch.Tensor(y_mass).to(NN_init.device)
 y_mass = torch.as_tensor(y_mass).to(NN_init.device)
+y_mass_one_hot = torch.as_tensor(y_mass_one_hot).to(NN_init.device)
 # y_mass_bin = torch.as_tensor(y_mass_bin).to(NN_init.device)
 # y_smote = torch.as_tensor(y_smote).to(NN_init.device)
 
@@ -68,8 +69,8 @@ sampler = WeightedRandomSampler(samples_weight, len(samples_weight))
 # print(sum(sumlen))
 
 # for ordinary
-train_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False, sampler=sampler)
-val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=True, pin_memory=False, sampler=sampler)
+train_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=False, pin_memory=False, sampler=sampler)
+val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=False, pin_memory=False, sampler=sampler)
 
 # for binary
 # train_loader_bin = data.DataLoader(MyDatasetBin, batch_size=NN_init.batch_size, pin_memory=False, sampler=sampler)
@@ -91,7 +92,8 @@ val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=T
 # conv_net_res = NN_training.training(resnet34, loss_fn, optimizer, train_loader_bin, val_loader_bin, n_epoch=70)
 
 # теперь обычный вариант 34-й со взвешенными классами
-resnet34_weight = Resnet.Resnet(name="resnet34_weight", nettype="resnet34", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0])
+resnet34_weight = Resnet.Resnet(name="resnet34_weight", nettype="resnet34", size_token=NN_init.size_of_array,
+                                unique_words=x_mass.shape[0], num_classes=NN_init.num_classes)
 resnet34_weight.to(NN_init.device)
 # class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
@@ -99,7 +101,8 @@ loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnet34_weight.parameters(), lr=NN_init.learning_rate)
 conv_net_res2 = NN_training.training(resnet34_weight, loss_fn, optimizer, train_loader, val_loader, n_epoch=70)
 
-resnet50_weight = Resnet.Resnet(name="resnet50_weight", nettype="resnet50", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0])
+resnet50_weight = Resnet.Resnet(name="resnet50_weight", nettype="resnet50", size_token=NN_init.size_of_array,
+                                unique_words=x_mass.shape[0], num_classes=NN_init.num_classes)
 resnet50_weight.to(NN_init.device)
 # class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)

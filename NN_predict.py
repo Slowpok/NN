@@ -19,13 +19,13 @@ def model_predict(word, name_model, RM=False):
     list1.append(ww)
     tensor_word = torch.Tensor(pad_sequences(list1, NN_init.size_of_array))
 
-    tensor_word.to(device)
+    tensor_word.to(NN_init.device)
     if RM:
-        hidden = resnet101.init_hidden(device)
-        result, hl = resnet101(tensor_word.to(device), hidden)
+        hidden = resnet101.init_hidden(NN_init.device)
+        result, hl = resnet101(tensor_word.to(NN_init.device), hidden)
 
     else:
-        result_list = resnet101(tensor_word.to(device))
+        result_list = resnet101(tensor_word.to(NN_init.device))
 
     result = torch.reshape(result, (-1,))[0].cpu().detach().numpy()
     return 1 if result > 0.5 else 0

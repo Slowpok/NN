@@ -1,7 +1,14 @@
+import torch
 
 size_of_array = 50
 learning_rate = 0.001
 batch_size = 10000
-finename = r"C:\Users\79118\OneDrive\Документы\Нейросет\Материалы датасет3.csv"
+finename = r"Материалы датасет4.csv"
 num_classes = 2
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+device = torch.device("cpu")
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+
