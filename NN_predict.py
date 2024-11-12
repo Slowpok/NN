@@ -8,11 +8,11 @@ import torch_geometric
 torch_geometric.nn.LightGCN
 
 def model_predict(word, name_model, RM=False):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    resnet101 = torch.load("whole_best_model" + name_model + ".pth", map_location=torch.device(device))
+    resnet101 = torch.load("whole_best_model" + name_model + ".pth", map_location=torch.device(NN_init.device))
     resnet101.eval()
-    resnet101.to(device)
+    resnet101.to(NN_init.device)
 
     list1 = []
     ww = Datasets.string_to_seq(word)
@@ -32,20 +32,20 @@ def model_predict(word, name_model, RM=False):
 
 
 def mass_model_predict(list_of_words, name_model, RM=False, dim=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    resnet101 = torch.load("whole_best_model" + name_model + ".pth", map_location=torch.device(device))
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    resnet101 = torch.load("whole_best_model" + name_model + ".pth", map_location=torch.device(NN_init.device))
     resnet101.eval()
-    resnet101.to(device)
+    resnet101.to(NN_init.device)
     list_seq = Datasets.string_list_to_sequence(list_of_words)
 
     tensor_word = torch.Tensor(pad_sequences(list_seq, NN_init.size_of_array))
 
     if RM:
-        hidden = resnet101.init_hidden(device)
-        result_list, hl = resnet101(tensor_word.to(device), hidden)
+        hidden = resnet101.init_hidden(NN_init.device)
+        result_list, hl = resnet101(tensor_word.to(NN_init.device), hidden)
 
     else:
-        result_list = resnet101(tensor_word.to(device))
+        result_list = resnet101(tensor_word.to(NN_init.device))
 
     if dim==None:
         y_pred = result_list.cpu().detach().numpy()
