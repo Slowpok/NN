@@ -11,6 +11,8 @@ import torcheval.metrics as metrics
 import torchmetrics
 import sklearn
 import pandas as pd
+from sklearn.metrics import confusion_matrix
+
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,13 +49,16 @@ def evaluate(model, dataloader, loss_fn, best_acc, epoch):
                 y_bbb = torch.argmax(y_batch, dim=1)
 
             num_correct += torch.sum(y_pred == y_bbb)
-            r = sklearn.metrics.confusion_matrix(y_bbb, y_pred)
+            y_pred_list = y_pred.cpu().detach().numpy()
+            y_bbb_list = y_bbb.cpu().detach().numpy()
+
+            r = confusion_matrix(y_bbb_list, y_pred_list)
             r = np.flip(r)
-            confusion_matrix = r.tolist()
-            true_pos += confusion_matrix[0][0]
-            true_neg += confusion_matrix[1][1]
-            false_pos += confusion_matrix[0][1]
-            false_neg += confusion_matrix[1][0]
+            confusion_matrix_list = r.tolist()
+            true_pos += confusion_matrix_list[0][0]
+            true_neg += confusion_matrix_list[1][1]
+            false_pos += confusion_matrix_list[0][1]
+            false_neg += confusion_matrix_list[1][0]
 
     accuracy = num_correct / num_elements
     accuracy = torch.reshape(accuracy, (-1,))[0].cpu().detach().numpy().tolist()
