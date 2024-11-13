@@ -7,15 +7,25 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import math
 import NN_init
+import torcheval.metrics as metrics
+import torchmetrics
+import sklearn
+import pandas as pd
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def evaluate(model, dataloader, loss_fn, best_acc):
+
+def evaluate(model, dataloader, loss_fn, best_acc, epoch):
+
     losses = []
     new_best = best_acc
-
+    # torchmetrics.
     num_correct = 0
     num_elements = 0
+    true_pos = 0
+    true_neg = 0
+    false_pos = 0
+    false_neg = 0
 
     for i, batch in enumerate(dataloader):
         # так получаем текущий батч
@@ -37,19 +47,34 @@ def evaluate(model, dataloader, loss_fn, best_acc):
                 y_bbb = torch.argmax(y_batch, dim=1)
 
             num_correct += torch.sum(y_pred == y_bbb)
+            r = sklearn.metrics.confusion_matrix(y_bbb, y_pred)
+            r = np.flip(r)
+            confusion_matrix = r.tolist()
+            true_pos += confusion_matrix[0][0]
+            true_neg += confusion_matrix[1][1]
+            false_pos += confusion_matrix[0][1]
+            false_neg += confusion_matrix[1][0]
 
     accuracy = num_correct / num_elements
     accuracy = torch.reshape(accuracy, (-1,))[0].cpu().detach().numpy().tolist()
 
-    # if best_acc < accuracy:
+    if best_acc < accuracy:
         # torch.save(model.state_dict(), "best_model.pth")
-    torch.save(model, "whole_best_model" + model.name + ".pth") # пока что сохраняем всю модель, в не словарь
-    new_best = accuracy
+        torch.save(model, "whole_best_model" + model.name + ".pth") # пока что сохраняем всю модель, в не словарь
+        new_best = accuracy
 
-    return accuracy, np.mean(losses), new_best
+    meanloss = np.mean(losses)
+
+    new_row = {"epoch": epoch, "loss": meanloss, "accuracy": accuracy, "true_positive": true_pos,
+               "true_negative": true_neg, "false_positive": false_pos, "false_negative": false_neg}
+
+    return accuracy, meanloss, new_best, new_row
 
 
 def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
+    metrics_df = pd.DataFrame(columns=["epoch", "loss", "accuracy", "true_positive", "true_negative",
+                                       "false_positive", "false_negative"])
+
     num_iter = 0
     acc_train = []
     acc_val = []
@@ -104,9 +129,14 @@ def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
         # после каждой эпохи получаем метрику качества на валидационной выборке
         model.train(False)
 
-        val_accuracy, val_loss, best_acc = evaluate(model, val_loader, loss_fn=loss_fn, best_acc=best_acc)
+        val_accuracy, val_loss, best_acc, new_row = evaluate(model, val_loader, loss_fn, best_acc, epoch)
+        metrics_df = pd.concat([metrics_df, pd.DataFrame([new_row])], ignore_index=True)
+
         acc_val.append(val_accuracy)
         loss_val.append(val_loss)
+
+
+    metrics_df.to_csv('metrics' + model.name + '.csv', index=False)
 
     # grafiki
 

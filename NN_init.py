@@ -1,4 +1,5 @@
 import torch
+import pandas as pd
 
 size_of_array = 50
 learning_rate = 0.001
