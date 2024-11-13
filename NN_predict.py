@@ -31,8 +31,9 @@ def model_predict(word, name_model, RM=False):
     return 1 if result > 0.5 else 0
 
 
-def mass_model_predict(list_of_words, name_model, RM=False, dim=None):
+def mass_model_predict(list_of_words, name_model, RM=False):
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     resnet101 = torch.load("whole_best_model" + name_model + ".pth", map_location=torch.device(NN_init.device))
     resnet101.eval()
     resnet101.to(NN_init.device)
@@ -47,7 +48,7 @@ def mass_model_predict(list_of_words, name_model, RM=False, dim=None):
     else:
         result_list = resnet101(tensor_word.to(NN_init.device))
 
-    if dim==None:
+    if resnet101.num_classes == 1:
         y_pred = result_list.cpu().detach().numpy()
         y_pred = [1 if x > 0.5 else 0 for x in y_pred]
     else:
