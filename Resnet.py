@@ -136,19 +136,6 @@ class Resnet(nn.Module):
         self.fc = nn.Linear(num_of_block * block.expansion, self.num_classes)
         self.sm = nn.Softmax(dim=1)
 
-        # nize - atavizmi
-        # # self.avgpool = nn.AvgPool1d(4)
-        # # self.drop_out = nn.Dropout(0.5)
-        # # self.flatten = nn.Flatten()
-        # # self.fc = nn.Linear(512*block.expansion, num_classes)
-        # self.avgpool = nn.AvgPool1d(2)  # 4 elsi propyshen 4 sloy
-        # # self.avgpool = nn.AvgPool1d(13) # elsi propysheny 3-4 sloy
-        # self.drop_out = nn.Dropout(0.5)
-        # self.flatten = nn.Flatten()
-        # # self.fc = nn.Linear(128*block.expansion, num_classes) # elsi propysheny 3-4 sloy
-        # # self.fc = nn.Linear(256 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
-        # self.fc = nn.Linear(512 * block.expansion, self.num_classes)
-        # self.sm = nn.Softmax(dim=1)
     def forward(self, x):
         #print("prohod osn classa")
         x = self.emb1(x.long())
