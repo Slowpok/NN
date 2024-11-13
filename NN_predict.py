@@ -48,12 +48,14 @@ def mass_model_predict(list_of_words, name_model, RM=False):
     else:
         result_list = resnet101(tensor_word.to(NN_init.device))
 
-    if resnet101.num_classes == 1:
-        y_pred = result_list.cpu().detach().numpy()
-        y_pred = [1 if x > 0.5 else 0 for x in y_pred]
-    else:
-        y_pred = torch.argmax(result_list, dim=1)
-        y_pred = y_pred.cpu().detach().numpy()
+    y_pred = result_list.cpu().detach().numpy().tolist()
+
+    # if resnet101.num_classes == 1:
+    #     y_pred = result_list.cpu().detach().numpy()
+    #     y_pred = [1 if x > 0.5 else 0 for x in y_pred]
+    # else:
+    #     y_pred = torch.argmax(result_list, dim=1)
+    #     y_pred = y_pred.cpu().detach().numpy()
 
     result = {key: value for key, value in zip(list_of_words, y_pred)}
     return result
