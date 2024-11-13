@@ -4,7 +4,7 @@ import Datasets
 import NN_init
 from keras._tf_keras.keras.preprocessing.sequence import pad_sequences
 import torch_geometric
-
+import torch.nn as nn
 torch_geometric.nn.LightGCN
 
 def model_predict(word, name_model, RM=False):
@@ -48,7 +48,6 @@ def mass_model_predict(list_of_words, name_model, RM=False):
     else:
         result_list = resnet101(tensor_word.to(NN_init.device))
 
-    y_pred = result_list.cpu().detach().numpy().tolist()
 
     # if resnet101.num_classes == 1:
     #     y_pred = result_list.cpu().detach().numpy()
@@ -57,6 +56,10 @@ def mass_model_predict(list_of_words, name_model, RM=False):
     #     y_pred = torch.argmax(result_list, dim=1)
     #     y_pred = y_pred.cpu().detach().numpy()
 
+    sm = nn.Softmax(dim=1)
+    y_pred = sm(result_list)
+
+    y_pred = y_pred.cpu().detach().numpy().tolist()
     result = {key: value for key, value in zip(list_of_words, y_pred)}
     return result
 

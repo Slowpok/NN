@@ -121,7 +121,7 @@ class Resnet(nn.Module):
         # self.fc = nn.Linear(128*block.expansion, num_classes) # elsi propysheny 3-4 sloy
         # self.fc = nn.Linear(256 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
         self.fc = nn.Linear(512 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
-
+        # self.sm = nn.Softmax(dim=1)
     def forward(self, x):
         #print("prohod osn classa")
         x = self.emb1(x.long())
@@ -154,6 +154,7 @@ class Resnet(nn.Module):
         #print(x.shape, " flatten")
         out = self.fc(x)
         #print(out.shape, " fc")
+        # out = self.sm(out)
 
         return out
 
