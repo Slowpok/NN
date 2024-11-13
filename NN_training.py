@@ -77,6 +77,7 @@ def evaluate(model, dataloader, loss_fn, best_acc, epoch):
 
 
 def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
+
     metrics_df = pd.DataFrame(columns=["epoch", "loss", "accuracy", "true_positive", "true_negative",
                                        "false_positive", "false_negative"])
 
@@ -135,7 +136,11 @@ def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
         model.train(False)
 
         val_accuracy, val_loss, best_acc, new_row = evaluate(model, val_loader, loss_fn, best_acc, epoch)
-        metrics_df = pd.concat([metrics_df, pd.DataFrame([new_row])], ignore_index=True)
+
+        if metrics_df.empty:
+            metrics_df = pd.DataFrame([new_row])
+        else:
+            metrics_df = pd.concat([metrics_df, pd.DataFrame([new_row])], ignore_index=True)
 
         acc_val.append(val_accuracy)
         loss_val.append(val_loss)

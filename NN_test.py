@@ -93,7 +93,8 @@ val_loader = data.DataLoader(MyDataset, batch_size=NN_init.batch_size, shuffle=F
 
 # теперь обычный вариант 34-й со взвешенными классами
 resnet34_weight = Resnet.Resnet(name="resnet34_weight", nettype="resnet34", size_token=NN_init.size_of_array,
-                                unique_words=x_mass.shape[0], num_classes=NN_init.num_classes)
+                                unique_words=x_mass.shape[0], num_classes=NN_init.num_classes, num_of_layers=4)
+
 resnet34_weight.to(NN_init.device)
 # class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
 # loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
@@ -104,8 +105,6 @@ conv_net_res2 = NN_training.training(resnet34_weight, loss_fn, optimizer, train_
 resnet50_weight = Resnet.Resnet(name="resnet50_weight", nettype="resnet50", size_token=NN_init.size_of_array,
                                 unique_words=x_mass.shape[0], num_classes=NN_init.num_classes)
 resnet50_weight.to(NN_init.device)
-# class_weights = torch.tensor([0.1, 0.9]).to(NN_init.device)
-# loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnet50_weight.parameters(), lr=NN_init.learning_rate)
 conv_net_res5 = NN_training.training(resnet50_weight, loss_fn, optimizer, train_loader, val_loader, n_epoch=70)
@@ -117,11 +116,4 @@ conv_net_res5 = NN_training.training(resnet50_weight, loss_fn, optimizer, train_
 # optimizer = torch.optim.Adam(resnet34_smote.parameters(), lr=NN_init.learning_rate)
 # conv_net_res3 = NN_training.training(resnet34_smote, loss_fn, optimizer, train_loader_bin_smote, val_loader_bin_smote, n_epoch=70)
 
-# LSTM
-# model_LSTM = LSTM.LSTM_Model(name="LSTM", size_token=NN_init.size_of_array, unique_words=x_mass.shape[0],num_classes=1)
-# model_LSTM.to(NN_init.device)
-#
-# loss_fn = torch.nn.BCELoss()
-# optimizer = torch.optim.Adam(model_LSTM.parameters(), lr=1e-2, amsgrad=True)
-#
-# model_LSTM_res = NN_training.training_lstm(model_LSTM, loss_fn, optimizer, train_loader_bin, val_loader_bin, n_epoch=150)
+

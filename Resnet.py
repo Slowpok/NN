@@ -91,7 +91,10 @@ class Resnet(nn.Module):
         "resnet152": (Bottleneck, [3, 8, 36, 3])
     }
 
-    def __init__(self, name, nettype, unique_words, size_token, num_classes=2):
+    def __init__(self, name, nettype, unique_words, size_token, num_classes=2, num_of_layers=4):
+        if num_of_layers not in [1, 2, 3, 4]:
+            print("incorrect num_of_layers")
+
         super().__init__()
         block, layers = self.cfgs[nettype]
 
@@ -99,6 +102,7 @@ class Resnet(nn.Module):
         self.embedding_dim = 100
         self.num_classes = num_classes
         self.name = name
+        self.num_of_layers = num_of_layers
 
         self.emb1 = nn.Embedding(unique_words, embedding_dim=self.embedding_dim, max_norm=size_token)
         # self.conv1 = nn.Conv1d(size_token, self.inplanes, 7, stride=2, padding=3, bias=False)
@@ -107,20 +111,43 @@ class Resnet(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool1d(3, stride=2, padding=1)
         self.layer1 = self.make_layer(block, 64, layers[0])
-        self.layer2 = self.make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self.make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self.make_layer(block, 512, layers[3], stride=2)
-        # self.avgpool = nn.AvgPool1d(4)
-        # self.drop_out = nn.Dropout(0.5)
-        # self.flatten = nn.Flatten()
-        # self.fc = nn.Linear(512*block.expansion, num_classes)
-        self.avgpool = nn.AvgPool1d(2)  # 4 elsi propyshen 4 sloy
-        # self.avgpool = nn.AvgPool1d(13) # elsi propysheny 3-4 sloy
+        if self.num_of_layers >= 2:
+            self.layer2 = self.make_layer(block, 128, layers[1], stride=2)
+        if self.num_of_layers >= 3:
+            self.layer3 = self.make_layer(block, 256, layers[2], stride=2)
+        if self.num_of_layers == 4:
+            self.layer4 = self.make_layer(block, 512, layers[3], stride=2)
+
+        avg_num = 13
+        num_of_block = 64
+        if self.num_of_layers == 2:
+            avg_num = 7
+            num_of_block = 128
+        elif self.num_of_layers == 3:
+            avg_num = 4
+            num_of_block = 256
+        elif self.num_of_layers == 4:
+            avg_num = 2
+            num_of_block = 512
+
+        self.avgpool = nn.AvgPool1d(avg_num)
         self.drop_out = nn.Dropout(0.5)
         self.flatten = nn.Flatten()
-        # self.fc = nn.Linear(128*block.expansion, num_classes) # elsi propysheny 3-4 sloy
-        # self.fc = nn.Linear(256 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
-        self.fc = nn.Linear(512 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
+        self.fc = nn.Linear(num_of_block * block.expansion, self.num_classes)
+        self.sm = nn.Softmax(dim=1)
+
+        # nize - atavizmi
+        # # self.avgpool = nn.AvgPool1d(4)
+        # # self.drop_out = nn.Dropout(0.5)
+        # # self.flatten = nn.Flatten()
+        # # self.fc = nn.Linear(512*block.expansion, num_classes)
+        # self.avgpool = nn.AvgPool1d(2)  # 4 elsi propyshen 4 sloy
+        # # self.avgpool = nn.AvgPool1d(13) # elsi propysheny 3-4 sloy
+        # self.drop_out = nn.Dropout(0.5)
+        # self.flatten = nn.Flatten()
+        # # self.fc = nn.Linear(128*block.expansion, num_classes) # elsi propysheny 3-4 sloy
+        # # self.fc = nn.Linear(256 * block.expansion, self.num_classes)  # elsi propyshen 4 sloy
+        # self.fc = nn.Linear(512 * block.expansion, self.num_classes)
         # self.sm = nn.Softmax(dim=1)
     def forward(self, x):
         #print("prohod osn classa")
@@ -138,12 +165,15 @@ class Resnet(nn.Module):
         #print(x.shape, " maxpool")
 
         x = self.layer1(x)
-        #print(x.shape, " layer1")
-        x = self.layer2(x)
-        #print(x.shape, " layer2")
-        x = self.layer3(x)
-        #print(x.shape, " layer3")
-        x = self.layer4(x)
+        # print(x.shape, " layer1")
+        if self.num_of_layers >= 2:
+            x = self.layer2(x)
+        # print(x.shape, " layer2")
+        if self.num_of_layers >= 3:
+            x = self.layer3(x)
+        # print(x.shape, " layer3")
+        if self.num_of_layers == 4:
+            x = self.layer4(x)
         # print(x.shape, " layer4")
 
         x = self.avgpool(x)
@@ -154,7 +184,7 @@ class Resnet(nn.Module):
         #print(x.shape, " flatten")
         out = self.fc(x)
         #print(out.shape, " fc")
-        # out = self.sm(out)
+        out = self.sm(out)
 
         return out
 
