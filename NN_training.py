@@ -234,14 +234,11 @@ def training_lstm(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3
             # вычисление лосса от выданных сетью ответов и правильных ответов на батч
             loss = loss_fn(logits, y_batch)
 
-            print("loss done")
             loss.backward()  # backpropagation (вычисление градиентов)
-            print("back done")
             loss_train.append(loss.item())
 
             optimizer.step()  # обновление весов сети
             optimizer.zero_grad()  # обнуляем веса
-            print("optimizer done")
             #########################
             # Логирование результатов
             num_iter += 1
