@@ -7,8 +7,6 @@ import torch
 import torch.utils.data as data
 from keras._tf_keras.keras.preprocessing.sequence import pad_sequences
 from keras._tf_keras.keras import utils
-import LSTM
-from collections import Counter
 from torch.utils.data.sampler import WeightedRandomSampler
 from imblearn.over_sampling import SMOTE
 import numpy as np
@@ -25,12 +23,17 @@ x_mass = ee['title']
 # y_mass = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
 # y_mass_bin = ee['class'] # dlya binarnoy
 y_mass = ee['class']
-y_mass_one_hot = utils.to_categorical(ee['class'], 2) # eto elsi ne binarnaya
+
+# y_mass_one_hot = utils.to_categorical(ee['class'], NN_init.num_classes) # eto elsi ne binarnaya
+# y_mass_one_hot = torch.as_tensor(y_mass_one_hot).to(NN_init.device)
+y_mass_one_hot = torch.nn.functional.one_hot(torch.as_tensor(y_mass).to(NN_init.device), NN_init.num_classes)
+
 
 # counter for weights
 # counter = Counter(y_mass_bin)
 
 x_mass = pad_sequences(Datasets.string_list_to_sequence(x_mass), NN_init.size_of_array)
+x_massPP = torch.nn.functional.pad(Datasets.string_list_to_sequence(x_mass),)
 
 # smote = SMOTE()
 # X_smote, y_smote = smote.fit_resample(x_mass, y_mass_bin)
@@ -43,7 +46,6 @@ x_mass = torch.Tensor(x_mass).to(NN_init.device)
 # X_smote = torch.Tensor(X_smote).to(NN_init.device)
 # y_mass = torch.Tensor(y_mass).to(NN_init.device)
 y_mass = torch.as_tensor(y_mass)
-y_mass_one_hot = torch.as_tensor(y_mass_one_hot).to(NN_init.device)
 # y_mass_bin = torch.as_tensor(y_mass_bin).to(NN_init.device)
 # y_smote = torch.as_tensor(y_smote).to(NN_init.device)
 
