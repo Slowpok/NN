@@ -33,7 +33,6 @@ y_mass_one_hot = torch.nn.functional.one_hot(torch.as_tensor(y_mass).to(NN_init.
 # counter = Counter(y_mass_bin)
 
 x_mass = pad_sequences(Datasets.string_list_to_sequence(x_mass), NN_init.size_of_array)
-x_massPP = torch.nn.functional.pad(Datasets.string_list_to_sequence(x_mass),)
 
 # smote = SMOTE()
 # X_smote, y_smote = smote.fit_resample(x_mass, y_mass_bin)
