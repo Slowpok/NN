@@ -12,6 +12,9 @@ import torchmetrics
 import sklearn
 import pandas as pd
 from sklearn.metrics import confusion_matrix
+from pytorch_lightning import Trainer
+from pytorch_lightning.loggers import CSVLogger
+
 
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -78,8 +81,8 @@ def evaluate(model, dataloader, loss_fn, best_acc, epoch):
 
 def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
 
-    metrics_df = pd.DataFrame(columns=["epoch", "loss", "accuracy", "true_positive", "true_negative",
-                                       "false_positive", "false_negative"])
+    # metrics_df = pd.DataFrame(columns=["epoch", "loss", "accuracy", "true_positive", "true_negative",
+    #                                    "false_positive", "false_negative"])
 
     num_iter = 0
     acc_train = []
@@ -87,6 +90,12 @@ def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
     loss_train = []
     loss_val = []
     best_acc = 0
+
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
+    logger = CSVLogger("logs", name='metrics' + model.name)
+    trainer = Trainer(logger=logger)
 
     # цикл обучения сети
     for epoch in tqdm(range(n_epoch)):
@@ -104,14 +113,12 @@ def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
             # вычисление лосса от выданных сетью ответов и правильных ответов на батч
             loss = loss_fn(logits, y_batch)
 
-            print("loss done")
             loss.backward()  # backpropagation (вычисление градиентов)
-            print("back done")
             loss_train.append(loss.item())
 
             optimizer.step()  # обновление весов сети
             optimizer.zero_grad()  # обнуляем веса
-            print("optimizer done")
+
             #########################
             # Логирование результатов
             num_iter += 1
@@ -136,17 +143,20 @@ def training(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3):
         model.train(False)
 
         val_accuracy, val_loss, best_acc, new_row = evaluate(model, val_loader, loss_fn, best_acc, epoch)
+        # trainer.checkpoint_callback.
+        logger.log_metrics(new_row)
+        logger.save()
 
-        if metrics_df.empty:
-            metrics_df = pd.DataFrame([new_row])
-        else:
-            metrics_df = pd.concat([metrics_df, pd.DataFrame([new_row])], ignore_index=True)
+        # if metrics_df.empty:
+        #     metrics_df = pd.DataFrame([new_row])
+        # else:
+        #     metrics_df = pd.concat([metrics_df, pd.DataFrame([new_row])], ignore_index=True)
 
         acc_val.append(val_accuracy)
         loss_val.append(val_loss)
 
 
-    metrics_df.to_csv('metrics' + model.name + '.csv', index=False)
+    # metrics_df.to_csv('metrics' + model.name + '.csv', index=False)
 
     # grafiki
 
@@ -219,6 +229,7 @@ def training_lstm(model, loss_fn, optimizer, train_loader, val_loader, n_epoch=3
     loss_train = []
     loss_val = []
     best_acc = 0
+
 
     # цикл обучения сети
     for epoch in tqdm(range(n_epoch)):

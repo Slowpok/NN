@@ -102,6 +102,7 @@ loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(resnet34_weight.parameters(), lr=NN_init.learning_rate)
 conv_net_res2 = NN_training.training(resnet34_weight, loss_fn, optimizer, train_loader, val_loader, n_epoch=70)
 
+
 resnet50_weight = Resnet.Resnet(name="resnet50_weight", nettype="resnet50", size_token=NN_init.size_of_array,
                                 unique_words=x_mass.shape[0], num_classes=NN_init.num_classes)
 resnet50_weight.to(NN_init.device)
